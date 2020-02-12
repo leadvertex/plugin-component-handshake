@@ -39,7 +39,7 @@ class Registration extends Model
 
     public function getLVT(): string
     {
-        return $this->getTag1();
+        return $this->getTag_1();
     }
 
     public function getSignedToken(string $jwt): Token
