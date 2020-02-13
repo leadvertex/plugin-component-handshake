@@ -22,7 +22,7 @@
     "lcobucci/jwt": "^3.3",
     "guzzlehttp/guzzle": "^6.5",
     "league/uri": "6.0",
-    "leadvertex/plugin-component-guzzle": "^0.0.1"
+    "leadvertex/plugin-component-guzzle": "^0.1"
   },
   "autoload-dev": {
     "psr-4": {

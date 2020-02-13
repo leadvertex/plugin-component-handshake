@@ -45,7 +45,7 @@ class Registration extends Model
     public function getSignedToken(string $jwt): Token
     {
         return (new Builder())
-            ->issuedBy($_ENV['PLUGIN_SELF_URL'])
+            ->issuedBy($_ENV['LV_PLUGIN_SELF_URL'])
             ->withClaim('jwt', $jwt)
             ->getToken(new Sha256(), new Key($this->getLVT()));
     }
@@ -56,19 +56,19 @@ class Registration extends Model
      */
     private function register(Token $token)
     {
-        $selfUri = $_ENV['PLUGIN_SELF_URL'];
+        $selfUri = $_ENV['LV_PLUGIN_SELF_URL'];
         if ($selfUri !== $token->getClaim('aud')) {
             throw new HandshakeException("Audience mismatched '{$token->getClaim('aud')}}'", 1);
         }
 
         $endpoint = UriString::parse($token->getClaim('iss'));
 
-        $scheme = $_ENV['PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] ?? 'https';
+        $scheme = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] ?? 'https';
         if ($endpoint['scheme'] !== $scheme) {
             throw new HandshakeException("Issuer scheme is not '{$scheme}}'", 2);
         }
 
-        $hostname = $_ENV['PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] ?? 'leadvertex.com';
+        $hostname = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] ?? 'leadvertex.com';
         if (!preg_match('~(^|\.)' . preg_quote($hostname) . '$~ui', $endpoint['host'])) {
             throw new HandshakeException("Issuer hostname is not '{$hostname}'", 3);
         }
