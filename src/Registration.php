@@ -26,7 +26,7 @@ class Registration extends Model
      * @param array $config
      * @throws HandshakeException
      */
-    public function __construct(Token $token, array $config = [])
+    public function __construct(Token $token)
     {
         parent::__construct(
             $token->getClaim('plugin')['id'],
@@ -34,7 +34,7 @@ class Registration extends Model
         );
 
         $this->setTag_1($token->getClaim('lvt'));
-        $this->register($token, $config);
+        $this->register($token);
     }
 
 
@@ -56,7 +56,7 @@ class Registration extends Model
      * @param array $config
      * @throws HandshakeException
      */
-    private function register(Token $token, array $config)
+    private function register(Token $token)
     {
         $selfUri = $_ENV['LV_PLUGIN_SELF_URL'];
         if ($selfUri !== $token->getClaim('aud')) {
@@ -81,7 +81,7 @@ class Registration extends Model
 
         $endpoint = UriString::build($endpoint) . '/' . ltrim($token->getClaim('endpoint'), '/');
 
-        $guzzle = Guzzle::getInstance($config);
+        $guzzle = Guzzle::getInstance();
         $response = $guzzle->patch($endpoint, [
             'json' => [
                 'allow_redirects' => false,

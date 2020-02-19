@@ -23,6 +23,16 @@ class RegistrationTest extends TestCase
 
     private static $mock;
 
+    /**
+     * @var \Lcobucci\JWT\Token
+     */
+    private $token;
+
+    /**
+     * @var Registration
+     */
+    private $registration;
+
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -50,12 +60,12 @@ class RegistrationTest extends TestCase
         self::$mock->reset();
     }
 
-    public function testRequestJWTClaims()
+    private function standardRegistration()
     {
         $lvt = "TestToken";
         self::$mock->append( new Response(200, [], json_encode(['confirmed' => true])));
 
-        $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
+        $this->token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
@@ -63,39 +73,33 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        $this->registration = new Registration($this->token);
+    }
+
+    public function testRequestJWTClaims()
+    {
+        $this->standardRegistration();
 
         $testRequest = json_decode(self::$mock->getLastRequest()->getBody()->getContents(), true);
         $data = (new Parser())->parse($testRequest['registration']);
 
-        $this->assertEquals($token->getClaim('iss'), $data->getClaim('iss'));
-        $this->assertEquals($token->getClaim('aud'), $data->getClaim('aud'));
-        $this->assertEquals($token->getClaim('exp'), $data->getClaim('exp'));
-        $this->assertEquals($token->getClaim('plugin')['model'], $data->getClaim('plugin')->model);
-        $this->assertEquals($token->getClaim('plugin')['id'], $data->getClaim('plugin')->id);
-        $this->assertEquals($token->getClaim('lvt'), $data->getClaim('lvt'));
-        $this->assertEquals($token->getClaim('endpoint'), $data->getClaim('endpoint'));
+        $this->assertEquals($this->token->getClaim('iss'), $data->getClaim('iss'));
+        $this->assertEquals($this->token->getClaim('aud'), $data->getClaim('aud'));
+        $this->assertEquals($this->token->getClaim('exp'), $data->getClaim('exp'));
+
+        $this->assertEquals($this->token->getClaim('plugin')['model'], $data->getClaim('plugin')->model);
+        $this->assertEquals($this->token->getClaim('plugin')['model'], $this->registration->getFeature());
+
+        $this->assertEquals($this->token->getClaim('plugin')['id'], $data->getClaim('plugin')->id);
+        $this->assertEquals($this->token->getClaim('plugin')['id'], $this->registration->getCompanyId());
+
+        $this->assertEquals($this->token->getClaim('lvt'), $data->getClaim('lvt'));
+        $this->assertEquals($this->token->getClaim('endpoint'), $data->getClaim('endpoint'));
     }
 
     public function testValidateRequestJWT()
     {
-        $lvt = "TestToken";
-        self::$mock->append( new Response(200, [], json_encode(['confirmed' => true])));
-
-        $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
-            ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', $lvt)
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
-            ->getToken();
-
-        new Registration(
-            $token
-        );
-
+        $this->standardRegistration();
 
         $testRequest = json_decode(self::$mock->getLastRequest()->getBody()->getContents(), true);
         $data = (new Parser())->parse($testRequest['registration']);
@@ -103,30 +107,17 @@ class RegistrationTest extends TestCase
         $validationData = new ValidationData();
         $validationData->setIssuer($data->getClaim('iss'));
         $validationData->setAudience($data->getClaim('aud'));
-        $this->assertTrue($token->validate($validationData));
+        $this->assertTrue($this->token->validate($validationData));
     }
 
     public function testVerifySignedRequestJWT()
     {
-        $lvt = "TestToken";
-        self::$mock->append( new Response(200, [], json_encode(['confirmed' => true])));
+        $this->standardRegistration();
 
-        $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
-            ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', $lvt)
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
-            ->getToken();
-
-        $testReg = new Registration(
-            $token
-        );
-
-        $signed = $testReg->getSignedToken('test');
+        $signed = $this->registration->getSignedToken('test');
         $this->assertEquals($signed->getClaim('iss'), $_ENV['LV_PLUGIN_SELF_URL']);
         $this->assertEquals($signed->getClaim('jwt'), 'test');
-        $this->assertTrue($signed->verify(new Sha256(), $testReg->getLVT()));
+        $this->assertTrue($signed->verify(new Sha256(), $this->registration->getLVT()));
     }
 
     public function testSelfUrlAudience()
@@ -143,9 +134,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 
     public function testHttpIssuer()
@@ -161,9 +151,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 
     public function testNotLeadVertexSubDomain()
@@ -179,9 +168,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 
     public function testNot200Response()
@@ -199,9 +187,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 
     public function testInvalidResponseBody()
@@ -220,9 +207,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 
     public function testResponseNotConfirmed()
@@ -240,8 +226,7 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
-        new Registration(
-            $token
-        );
+        //Trying to register plugin
+        new Registration($token);
     }
 }
