@@ -23,6 +23,7 @@ class Registration extends Model
     /**
      * Registration constructor.
      * @param Token $token
+     * @param array $config
      * @throws HandshakeException
      */
     public function __construct(Token $token)
@@ -52,13 +53,14 @@ class Registration extends Model
 
     /**
      * @param Token $token
+     * @param array $config
      * @throws HandshakeException
      */
     private function register(Token $token)
     {
         $selfUri = $_ENV['LV_PLUGIN_SELF_URL'];
         if ($selfUri !== $token->getClaim('aud')) {
-            throw new HandshakeException("Audience mismatched '{$token->getClaim('aud')}}'", 1);
+            throw new HandshakeException("Audience mismatched '{$token->getClaim('aud')}'", 1);
         }
 
         $endpoint = UriString::parse($token->getClaim('iss'));
@@ -91,7 +93,7 @@ class Registration extends Model
             throw new HandshakeException("LV respond with non-200 code: '{$response->getStatusCode()}'", 4);
         }
 
-        $body = json_decode($response->getBody()->getContents());
+        $body = json_decode($response->getBody()->getContents(), true);
 
         if (!isset($body['confirmed'])) {
             throw new HandshakeException("Invalid LV response", 5);
