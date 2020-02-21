@@ -23,7 +23,6 @@ class Registration extends Model
     /**
      * Registration constructor.
      * @param Token $token
-     * @param array $config
      * @throws HandshakeException
      */
     public function __construct(Token $token)
@@ -53,7 +52,6 @@ class Registration extends Model
 
     /**
      * @param Token $token
-     * @param array $config
      * @throws HandshakeException
      */
     private function register(Token $token)
