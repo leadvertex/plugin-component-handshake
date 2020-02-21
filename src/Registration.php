@@ -81,8 +81,8 @@ class Registration extends Model
 
         $guzzle = Guzzle::getInstance();
         $response = $guzzle->patch($endpoint, [
+            'allow_redirects' => false,
             'json' => [
-                'allow_redirects' => false,
                 'registration' => (string) $token,
             ]
         ]);
