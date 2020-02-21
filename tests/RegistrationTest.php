@@ -1,6 +1,4 @@
 <?php
-
-
 namespace Leadvertex\Plugin\Components\Handshake;
 
 
@@ -11,11 +9,11 @@ use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
 use Leadvertex\Plugin\Components\Handshake\Exceptions\HandshakeException;
-use Medoo\Medoo;
 use PHPUnit\Framework\TestCase;
 
 class RegistrationTest extends TestCase
@@ -24,7 +22,7 @@ class RegistrationTest extends TestCase
     private static $mock;
 
     /**
-     * @var \Lcobucci\JWT\Token
+     * @var Token
      */
     private $token;
 
@@ -41,13 +39,7 @@ class RegistrationTest extends TestCase
         $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] = 'leadvertex.com';
         $_ENV['LV_PLUGIN_SELF_TYPE'] = 'macros';
 
-        Connector::init(
-            new Medoo([
-                'database_type' => 'sqlite',
-                'database_file' => ''
-            ]),
-            1
-        );
+        Connector::setCompanyId(1);
 
         self::$mock = new MockHandler();
         $handlerStack = HandlerStack::create(self::$mock);
