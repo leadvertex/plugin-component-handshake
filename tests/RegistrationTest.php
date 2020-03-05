@@ -34,7 +34,7 @@ class RegistrationTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        $_ENV['LV_PLUGIN_SELF_URL'] = 'https://plugin.example.com/excel/';
+        $_ENV['LV_PLUGIN_SELF_URI'] = 'https://plugin.example.com/excel/';
         $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] = 'https';
         $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] = 'leadvertex.com';
         $_ENV['LV_PLUGIN_SELF_TYPE'] = 'macros';
@@ -58,7 +58,7 @@ class RegistrationTest extends TestCase
         self::$mock->append( new Response(200, [], json_encode(['confirmed' => true])));
 
         $this->token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', $lvt)
@@ -107,19 +107,19 @@ class RegistrationTest extends TestCase
         $this->standardRegistration();
 
         $signed = $this->registration->getSignedToken('test');
-        $this->assertEquals($signed->getClaim('iss'), $_ENV['LV_PLUGIN_SELF_URL']);
+        $this->assertEquals($signed->getClaim('iss'), $_ENV['LV_PLUGIN_SELF_URI']);
         $this->assertEquals($signed->getClaim('jwt'), 'test');
         $this->assertTrue($signed->verify(new Sha256(), $this->registration->getLVT()));
     }
 
-    public function testSelfUrlAudience()
+    public function testSelfUriAudience()
     {
-        $incorrectUrl = 'https://incorrect.com';
+        $incorrectUri = 'https://incorrect.com';
         $this->expectException(HandshakeException::class);
         $this->expectExceptionCode(1);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($incorrectUrl)
+            ->permittedFor($incorrectUri)
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')
@@ -136,7 +136,7 @@ class RegistrationTest extends TestCase
         $this->expectExceptionCode(2);
 
         $token = (new Builder())->issuedBy('http://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')
@@ -153,7 +153,7 @@ class RegistrationTest extends TestCase
         $this->expectExceptionCode(3);
 
         $token = (new Builder())->issuedBy('https://backend.justvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')
@@ -172,7 +172,7 @@ class RegistrationTest extends TestCase
         $this->expectExceptionCode(4);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')
@@ -192,7 +192,7 @@ class RegistrationTest extends TestCase
         $this->expectExceptionCode(5);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')
@@ -211,7 +211,7 @@ class RegistrationTest extends TestCase
         $this->expectExceptionCode(6);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
-            ->permittedFor($_ENV['LV_PLUGIN_SELF_URL'])
+            ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
             ->withClaim('lvt', 'test')

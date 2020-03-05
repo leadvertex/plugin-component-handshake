@@ -45,7 +45,7 @@ class Registration extends Model
     public function getSignedToken(string $jwt): Token
     {
         return (new Builder())
-            ->issuedBy($_ENV['LV_PLUGIN_SELF_URL'])
+            ->issuedBy($_ENV['LV_PLUGIN_SELF_URI'])
             ->withClaim('jwt', $jwt)
             ->getToken(new Sha256(), new Key($this->getLVT()));
     }
@@ -56,7 +56,7 @@ class Registration extends Model
      */
     private function register(Token $token)
     {
-        $selfUri = $_ENV['LV_PLUGIN_SELF_URL'];
+        $selfUri = $_ENV['LV_PLUGIN_SELF_URI'];
         if ($selfUri !== $token->getClaim('aud')) {
             throw new HandshakeException("Audience mismatched '{$token->getClaim('aud')}'", 1);
         }
