@@ -10,7 +10,7 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="LeadVertex plugin process handler component">
+        <testsuite name="LeadVertex plugin handshake component">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
