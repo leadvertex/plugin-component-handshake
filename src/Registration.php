@@ -65,7 +65,7 @@ class Registration extends Model
 
         $scheme = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] ?? 'https';
         if ($endpoint['scheme'] !== $scheme) {
-            throw new HandshakeException("Issuer scheme is not '{$scheme}}'", 2);
+            throw new HandshakeException("Issuer scheme is not '{$scheme}'", 2);
         }
 
         $hostname = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] ?? 'leadvertex.com';
@@ -80,7 +80,7 @@ class Registration extends Model
         $endpoint = UriString::build($endpoint) . '/' . ltrim($token->getClaim('endpoint'), '/');
 
         $guzzle = Guzzle::getInstance();
-        $response = $guzzle->patch($endpoint, [
+        $response = $guzzle->put($endpoint, [
             'allow_redirects' => false,
             'json' => [
                 'registration' => (string) $token,
