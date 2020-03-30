@@ -28,8 +28,8 @@ class Registration extends Model
     public function __construct(Token $token)
     {
         parent::__construct(
-            $token->getClaim('plugin')['id'],
-            $token->getClaim('plugin')['model']
+            $token->getClaim('plugin')->id,
+            $token->getClaim('plugin')->model
         );
 
         $this->setTag_1($token->getClaim('lvt'));

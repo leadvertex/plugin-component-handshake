@@ -65,6 +65,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
+        $this->token = $this->convertToken($this->token);
+
         $this->registration = new Registration($this->token);
     }
 
@@ -73,20 +75,20 @@ class RegistrationTest extends TestCase
         $this->standardRegistration();
 
         $testRequest = json_decode(self::$mock->getLastRequest()->getBody()->getContents(), true);
-        $data = (new Parser())->parse($testRequest['registration']);
+        $token = (new Parser())->parse($testRequest['registration']);
 
-        $this->assertEquals($this->token->getClaim('iss'), $data->getClaim('iss'));
-        $this->assertEquals($this->token->getClaim('aud'), $data->getClaim('aud'));
-        $this->assertEquals($this->token->getClaim('exp'), $data->getClaim('exp'));
+        $this->assertEquals($this->token->getClaim('iss'), $token->getClaim('iss'));
+        $this->assertEquals($this->token->getClaim('aud'), $token->getClaim('aud'));
+        $this->assertEquals($this->token->getClaim('exp'), $token->getClaim('exp'));
 
-        $this->assertEquals($this->token->getClaim('plugin')['model'], $data->getClaim('plugin')->model);
-        $this->assertEquals($this->token->getClaim('plugin')['model'], $this->registration->getFeature());
+        $this->assertEquals($this->token->getClaim('plugin')->model, $token->getClaim('plugin')->model);
+        $this->assertEquals($this->token->getClaim('plugin')->model, $this->registration->getFeature());
 
-        $this->assertEquals($this->token->getClaim('plugin')['id'], $data->getClaim('plugin')->id);
-        $this->assertEquals($this->token->getClaim('plugin')['id'], $this->registration->getCompanyId());
+        $this->assertEquals($this->token->getClaim('plugin')->id, $token->getClaim('plugin')->id);
+        $this->assertEquals($this->token->getClaim('plugin')->id, $this->registration->getCompanyId());
 
-        $this->assertEquals($this->token->getClaim('lvt'), $data->getClaim('lvt'));
-        $this->assertEquals($this->token->getClaim('endpoint'), $data->getClaim('endpoint'));
+        $this->assertEquals($this->token->getClaim('lvt'), $token->getClaim('lvt'));
+        $this->assertEquals($this->token->getClaim('endpoint'), $token->getClaim('endpoint'));
     }
 
     public function testValidateRequestJWT()
@@ -126,6 +128,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
+        $token = $this->convertToken($token);
+
         //Trying to register plugin
         new Registration($token);
     }
@@ -143,6 +147,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
+        $token = $this->convertToken($token);
+
         //Trying to register plugin
         new Registration($token);
     }
@@ -159,6 +165,8 @@ class RegistrationTest extends TestCase
             ->withClaim('lvt', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
+
+        $token = $this->convertToken($token);
 
         //Trying to register plugin
         new Registration($token);
@@ -178,6 +186,8 @@ class RegistrationTest extends TestCase
             ->withClaim('lvt', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
+
+        $token = $this->convertToken($token);
 
         //Trying to register plugin
         new Registration($token);
@@ -199,6 +209,8 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
+        $token = $this->convertToken($token);
+
         //Trying to register plugin
         new Registration($token);
     }
@@ -218,7 +230,15 @@ class RegistrationTest extends TestCase
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
+        $token = $this->convertToken($token);
+
         //Trying to register plugin
         new Registration($token);
     }
+
+    private function convertToken(Token $token): Token
+    {
+        return (new Parser())->parse((string) $token);
+    }
+
 }
