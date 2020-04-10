@@ -1,6 +1,6 @@
 # LeadVertex handshake плагин
 `Leadvertex\Plugin\Components\Handshake\Registration` - компонент, который предназначен для простой
-регистрации плагина на LeadVertex. Он использует компонент [lcobucci\jwt]("https://github.com/lcobucci/jwt/tree/3.3" "lcobucci\jwt") для генерации и чтения ключей.
+регистрации плагина на LeadVertex. Он использует компонент [lcobucci/jwt]("https://github.com/lcobucci/jwt" "lcobucci/jwt") для генерации и чтения ключей.
 
 ## Установка
 ```shell script

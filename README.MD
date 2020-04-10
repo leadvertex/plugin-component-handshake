@@ -1,6 +1,6 @@
 # LeadVertex handshake plugin component
 `Leadvertex\Plugin\Components\Handshake\Registration` - component that is designed for easy
-registration of the plugin on LeadVertex. It uses [lcobucci\jwt]("https://github.com/lcobucci/jwt/tree/3.3" "lcobucci\jwt") component.
+registration of the plugin on LeadVertex. It uses [lcobucci/jwt]("https://github.com/lcobucci/jwt" "lcobucci/jwt") component.
 
 ## Installation
 ```shell script
