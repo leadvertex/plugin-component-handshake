@@ -1,5 +1,5 @@
 <?php
-namespace Leadvertex\Plugin\Components\Handshake;
+namespace Leadvertex\Plugin\Components\Registration;
 
 
 use DateTimeImmutable;
@@ -8,12 +8,12 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
-use Leadvertex\Plugin\Components\Handshake\Exceptions\HandshakeException;
+use Leadvertex\Plugin\Components\Registration\Exceptions\PluginRegistrationException;
 use PHPUnit\Framework\TestCase;
 
 class RegistrationTest extends TestCase
@@ -37,7 +37,7 @@ class RegistrationTest extends TestCase
         $_ENV['LV_PLUGIN_SELF_URI'] = 'https://plugin.example.com/excel/';
         $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] = 'https';
         $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] = 'leadvertex.com';
-        $_ENV['LV_PLUGIN_SELF_TYPE'] = 'macros';
+        $_ENV['LV_PLUGIN_SELF_TYPE'] = 'MACROS';
 
         Connector::setCompanyId(1);
 
@@ -61,7 +61,7 @@ class RegistrationTest extends TestCase
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', $lvt)
+            ->withClaim('LVPT', $lvt)
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -87,7 +87,7 @@ class RegistrationTest extends TestCase
         $this->assertEquals($this->token->getClaim('plugin')->id, $token->getClaim('plugin')->id);
         $this->assertEquals($this->token->getClaim('plugin')->id, $this->registration->getCompanyId());
 
-        $this->assertEquals($this->token->getClaim('lvt'), $token->getClaim('lvt'));
+        $this->assertEquals($this->token->getClaim('LVPT'), $token->getClaim('LVPT'));
         $this->assertEquals($this->token->getClaim('endpoint'), $token->getClaim('endpoint'));
     }
 
@@ -111,20 +111,20 @@ class RegistrationTest extends TestCase
         $signed = $this->registration->getSignedToken('test');
         $this->assertEquals($signed->getClaim('iss'), $_ENV['LV_PLUGIN_SELF_URI']);
         $this->assertEquals($signed->getClaim('jwt'), 'test');
-        $this->assertTrue($signed->verify(new Sha256(), $this->registration->getLVT()));
+        $this->assertTrue($signed->verify(new Sha512(), $this->registration->getLVPT()));
     }
 
     public function testSelfUriAudience()
     {
         $incorrectUri = 'https://incorrect.com';
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(1);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($incorrectUri)
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -136,14 +136,14 @@ class RegistrationTest extends TestCase
 
     public function testHttpIssuer()
     {
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(2);
 
         $token = (new Builder())->issuedBy('http://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -155,14 +155,14 @@ class RegistrationTest extends TestCase
 
     public function testNotLeadVertexSubDomain()
     {
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(3);
 
         $token = (new Builder())->issuedBy('https://backend.justvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -176,14 +176,14 @@ class RegistrationTest extends TestCase
     {
         self::$mock->append(new Response(400, [], json_encode(['confirmed' => true])));
 
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(4);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -198,14 +198,14 @@ class RegistrationTest extends TestCase
         self::$mock->append(new Response(200, [], json_encode(['someData' => 'value'])));
 
 
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(5);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
@@ -219,14 +219,14 @@ class RegistrationTest extends TestCase
     {
         self::$mock->append(new Response(200, [], json_encode(['confirmed' => false])));
 
-        $this->expectException(HandshakeException::class);
+        $this->expectException(PluginRegistrationException::class);
         $this->expectExceptionCode(6);
 
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
-            ->withClaim('lvt', 'test')
+            ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 

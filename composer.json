@@ -1,6 +1,6 @@
 {
-  "name": "leadvertex/plugin-component-handshake",
-  "description": "LeadVertex plugin handshake component",
+  "name": "leadvertex/plugin-component-registration",
+  "description": "LeadVertex plugin registration component",
   "type": "library",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -12,21 +12,20 @@
   ],
   "autoload": {
     "psr-4": {
-      "Leadvertex\\Plugin\\Components\\Handshake\\": "src/"
+      "Leadvertex\\Plugin\\Components\\Registration\\": "src/"
     }
   },
   "require": {
     "php": ">=7.1.0",
     "ext-json": "*",
     "lcobucci/jwt": "^3.3",
-    "guzzlehttp/guzzle": "^6.5",
     "league/uri": "6.0",
     "leadvertex/plugin-component-db": "^0.2.0",
-    "leadvertex/plugin-component-guzzle": "^0.1"
+    "leadvertex/plugin-component-guzzle": "^0.2"
   },
   "autoload-dev": {
     "psr-4": {
-      "Leadvertex\\Plugin\\Components\\Handshake\\": "tests/"
+      "Leadvertex\\Plugin\\Components\\Registration\\": "tests/"
     }
   },
   "require-dev": {

@@ -1,20 +1,20 @@
 <?php
 /**
- * Created for plugin-component-handshake
+ * Created for plugin-component-registration
  * Datetime: 10.02.2020 18:03
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Components\Handshake;
+namespace Leadvertex\Plugin\Components\Registration;
 
 
 use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use Leadvertex\Plugin\Components\Db\Model;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
-use Leadvertex\Plugin\Components\Handshake\Exceptions\HandshakeException;
+use Leadvertex\Plugin\Components\Registration\Exceptions\PluginRegistrationException;
 use League\Uri\UriString;
 
 class Registration extends Model
@@ -23,7 +23,7 @@ class Registration extends Model
     /**
      * Registration constructor.
      * @param Token $token
-     * @throws HandshakeException
+     * @throws PluginRegistrationException
      */
     public function __construct(Token $token)
     {
@@ -32,12 +32,12 @@ class Registration extends Model
             $token->getClaim('plugin')->model
         );
 
-        $this->setTag_1($token->getClaim('lvt'));
+        $this->setTag_1($token->getClaim('LVPT'));
         $this->register($token);
     }
 
 
-    public function getLVT(): string
+    public function getLVPT(): string
     {
         return $this->getTag_1();
     }
@@ -47,30 +47,30 @@ class Registration extends Model
         return (new Builder())
             ->issuedBy($_ENV['LV_PLUGIN_SELF_URI'])
             ->withClaim('jwt', $jwt)
-            ->getToken(new Sha256(), new Key($this->getLVT()));
+            ->getToken(new Sha512(), new Key($this->getLVPT()));
     }
 
     /**
      * @param Token $token
-     * @throws HandshakeException
+     * @throws PluginRegistrationException
      */
     private function register(Token $token)
     {
         $selfUri = $_ENV['LV_PLUGIN_SELF_URI'];
         if ($selfUri !== $token->getClaim('aud')) {
-            throw new HandshakeException("Audience mismatched '{$token->getClaim('aud')}'", 1);
+            throw new PluginRegistrationException("Audience mismatched '{$token->getClaim('aud')}'", 1);
         }
 
         $endpoint = UriString::parse($token->getClaim('iss'));
 
         $scheme = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] ?? 'https';
         if ($endpoint['scheme'] !== $scheme) {
-            throw new HandshakeException("Issuer scheme is not '{$scheme}'", 2);
+            throw new PluginRegistrationException("Issuer scheme is not '{$scheme}'", 2);
         }
 
         $hostname = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] ?? 'leadvertex.com';
         if (!preg_match('~(^|\.)' . preg_quote($hostname) . '$~ui', $endpoint['host'])) {
-            throw new HandshakeException("Issuer hostname is not '{$hostname}'", 3);
+            throw new PluginRegistrationException("Issuer hostname is not '{$hostname}'", 3);
         }
 
         $endpoint['path'] = null;
@@ -88,17 +88,17 @@ class Registration extends Model
         ]);
 
         if ($response->getStatusCode() != 200) {
-            throw new HandshakeException("LV respond with non-200 code: '{$response->getStatusCode()}'", 4);
+            throw new PluginRegistrationException("LV respond with non-200 code: '{$response->getStatusCode()}'", 4);
         }
 
         $body = json_decode($response->getBody()->getContents(), true);
 
         if (!isset($body['confirmed'])) {
-            throw new HandshakeException("Invalid LV response", 5);
+            throw new PluginRegistrationException("Invalid LV response", 5);
         }
 
         if ($body['confirmed'] !== true) {
-            throw new HandshakeException("LV did not confirm your request", 6);
+            throw new PluginRegistrationException("LV did not confirm your request", 6);
         }
     }
 
