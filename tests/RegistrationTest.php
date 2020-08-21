@@ -60,7 +60,7 @@ class RegistrationTest extends TestCase
         $this->token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', $lvt)
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -81,8 +81,8 @@ class RegistrationTest extends TestCase
         $this->assertEquals($this->token->getClaim('aud'), $token->getClaim('aud'));
         $this->assertEquals($this->token->getClaim('exp'), $token->getClaim('exp'));
 
-        $this->assertEquals($this->token->getClaim('plugin')->model, $token->getClaim('plugin')->model);
-        $this->assertEquals($this->token->getClaim('plugin')->model, $this->registration->getFeature());
+        $this->assertEquals($this->token->getClaim('plugin')->alias, $token->getClaim('plugin')->alias);
+        $this->assertEquals($this->token->getClaim('plugin')->alias, $this->registration->getFeature());
 
         $this->assertEquals($this->token->getClaim('plugin')->id, $token->getClaim('plugin')->id);
         $this->assertEquals($this->token->getClaim('plugin')->id, $this->registration->getCompanyId());
@@ -123,7 +123,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($incorrectUri)
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -142,7 +142,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('http://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -161,7 +161,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('https://backend.justvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -182,7 +182,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -204,7 +204,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
@@ -225,7 +225,7 @@ class RegistrationTest extends TestCase
         $token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
-            ->withClaim('plugin', ['model' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
             ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();

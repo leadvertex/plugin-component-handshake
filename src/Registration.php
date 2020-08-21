@@ -29,7 +29,7 @@ class Registration extends Model
     {
         parent::__construct(
             $token->getClaim('plugin')->id,
-            $token->getClaim('plugin')->model
+            $token->getClaim('plugin')->alias
         );
 
         $this->setTag_1($token->getClaim('LVPT'));
