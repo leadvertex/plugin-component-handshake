@@ -63,12 +63,12 @@ class Registration extends Model
 
         $endpoint = UriString::parse($token->getClaim('iss'));
 
-        $scheme = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] ?? 'https';
+        $scheme = $_ENV['LV_PLUGIN_COMPONENT_REGISTRATION_SCHEME'] ?? 'https';
         if ($endpoint['scheme'] !== $scheme) {
             throw new PluginRegistrationException("Issuer scheme is not '{$scheme}'", 2);
         }
 
-        $hostname = $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] ?? 'leadvertex.com';
+        $hostname = $_ENV['LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME'] ?? 'leadvertex.com';
         if (!preg_match('~(^|\.)' . preg_quote($hostname) . '$~ui', $endpoint['host'])) {
             throw new PluginRegistrationException("Issuer hostname is not '{$hostname}'", 3);
         }

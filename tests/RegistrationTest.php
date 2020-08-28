@@ -35,8 +35,8 @@ class RegistrationTest extends TestCase
     {
         parent::setUpBeforeClass();
         $_ENV['LV_PLUGIN_SELF_URI'] = 'https://plugin.example.com/excel/';
-        $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME'] = 'https';
-        $_ENV['LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME'] = 'leadvertex.com';
+        $_ENV['LV_PLUGIN_COMPONENT_REGISTRATION_SCHEME'] = 'https';
+        $_ENV['LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME'] = 'leadvertex.com';
         $_ENV['LV_PLUGIN_SELF_TYPE'] = 'MACROS';
 
         Connector::setCompanyId(1);
