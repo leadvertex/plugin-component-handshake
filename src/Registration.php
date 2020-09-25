@@ -47,6 +47,7 @@ class Registration extends Model
         return (new Builder())
             ->issuedBy($_ENV['LV_PLUGIN_SELF_URI'])
             ->withClaim('jwt', $jwt)
+            ->withClaim('type', 'macrosPlugin')
             ->getToken(new Sha512(), new Key($this->getLVPT()));
     }
 
