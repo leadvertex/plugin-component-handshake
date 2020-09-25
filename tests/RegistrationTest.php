@@ -60,9 +60,9 @@ class RegistrationTest extends TestCase
         $this->token = (new Builder())->issuedBy('https://backend.leadvertex.com/')
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
+            ->withClaim('cid', '1')
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', $lvt)
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $this->token = $this->convertToken($this->token);
@@ -87,8 +87,9 @@ class RegistrationTest extends TestCase
         $this->assertEquals($this->token->getClaim('plugin')->id, $token->getClaim('plugin')->id);
         $this->assertEquals($this->token->getClaim('plugin')->id, $this->registration->getCompanyId());
 
+        $this->assertEquals($this->token->getClaim('cid'), $token->getClaim('cid'));
+
         $this->assertEquals($this->token->getClaim('LVPT'), $token->getClaim('LVPT'));
-        $this->assertEquals($this->token->getClaim('endpoint'), $token->getClaim('endpoint'));
     }
 
     public function testValidateRequestJWT()
@@ -125,7 +126,6 @@ class RegistrationTest extends TestCase
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
@@ -144,7 +144,6 @@ class RegistrationTest extends TestCase
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
@@ -163,7 +162,6 @@ class RegistrationTest extends TestCase
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
@@ -183,8 +181,8 @@ class RegistrationTest extends TestCase
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
+            ->withClaim('cid', '1')
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
@@ -205,8 +203,8 @@ class RegistrationTest extends TestCase
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
+            ->withClaim('cid', '1')
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
@@ -226,8 +224,8 @@ class RegistrationTest extends TestCase
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
+            ->withClaim('cid', '1')
             ->withClaim('LVPT', 'test')
-            ->withClaim('endpoint', '/companies/1/CRM/plugin/register')
             ->getToken();
 
         $token = $this->convertToken($token);
