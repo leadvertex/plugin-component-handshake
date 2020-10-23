@@ -79,7 +79,7 @@ class Registration extends Model
         $endpoint['fragment'] = null;
 
         $companyId = $token->getClaim('cid');
-        $endpoint = UriString::build($endpoint) . "/companies/{$companyId}/CRM/plugin/register";
+        $endpoint = UriString::build($endpoint) . "/companies/{$companyId}/CRM/plugin/registration";
 
         $guzzle = Guzzle::getInstance();
         $response = $guzzle->put($endpoint, [
