@@ -8,7 +8,6 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
@@ -103,16 +102,6 @@ class RegistrationTest extends TestCase
         $validationData->setIssuer($data->getClaim('iss'));
         $validationData->setAudience($data->getClaim('aud'));
         $this->assertTrue($this->token->validate($validationData));
-    }
-
-    public function testVerifySignedRequestJWT()
-    {
-        $this->standardRegistration();
-
-        $signed = $this->registration->getSignedToken('test');
-        $this->assertEquals($signed->getClaim('iss'), $_ENV['LV_PLUGIN_SELF_URI']);
-        $this->assertEquals($signed->getClaim('jwt'), 'test');
-        $this->assertTrue($signed->verify(new Sha512(), $this->registration->getLVPT()));
     }
 
     public function testSelfUriAudience()

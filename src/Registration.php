@@ -8,9 +8,6 @@
 namespace Leadvertex\Plugin\Components\Registration;
 
 
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha512;
-use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use Leadvertex\Plugin\Components\Db\Model;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
@@ -40,15 +37,6 @@ class Registration extends Model
     public function getLVPT(): string
     {
         return $this->getTag_1();
-    }
-
-    public function getSignedToken(string $jwt): Token
-    {
-        return (new Builder())
-            ->issuedBy($_ENV['LV_PLUGIN_SELF_URI'])
-            ->withClaim('jwt', $jwt)
-            ->withClaim('plugin', $_ENV['LV_PLUGIN_SELF_TYPE'])
-            ->getToken(new Sha512(), new Key($this->getLVPT()));
     }
 
     /**
