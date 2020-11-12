@@ -16,11 +16,11 @@
     }
   },
   "require": {
-    "php": ">=7.1.0",
+    "php": ">=7.4.0",
     "ext-json": "*",
     "lcobucci/jwt": "^3.3",
     "league/uri": "6.0",
-    "leadvertex/plugin-component-db": "^0.2.0",
+    "leadvertex/plugin-component-db": "^0.2.5",
     "leadvertex/plugin-component-guzzle": "^0.2"
   },
   "autoload-dev": {

@@ -92,4 +92,14 @@ class Registration extends Model
         }
     }
 
+    public static function findById(string $id, ?string $feature = null): ?self
+    {
+        return parent::findById($id, $feature);
+    }
+
+    public static function findByIds(array $ids, ?string $feature = null): array
+    {
+        return parent::findByIds($ids, $feature);
+    }
+
 }
