@@ -11,6 +11,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
+use Leadvertex\Plugin\Components\Db\Components\PluginReference;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
 use Leadvertex\Plugin\Components\Registration\Exceptions\PluginRegistrationException;
 use PHPUnit\Framework\TestCase;
@@ -20,15 +21,9 @@ class RegistrationTest extends TestCase
 
     private static $mock;
 
-    /**
-     * @var Token
-     */
-    private $token;
+    private Token $token;
 
-    /**
-     * @var Registration
-     */
-    private $registration;
+    private Registration $registration;
 
     public static function setUpBeforeClass(): void
     {
@@ -38,7 +33,7 @@ class RegistrationTest extends TestCase
         $_ENV['LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME'] = 'leadvertex.com';
         $_ENV['LV_PLUGIN_SELF_TYPE'] = 'MACROS';
 
-        Connector::setCompanyId(1);
+        Connector::setReference(new PluginReference(1, 'MACROS', 2));
 
         self::$mock = new MockHandler();
         $handlerStack = HandlerStack::create(self::$mock);
@@ -60,7 +55,7 @@ class RegistrationTest extends TestCase
             ->permittedFor($_ENV['LV_PLUGIN_SELF_URI'])
             ->expiresAt((new DateTimeImmutable())->getTimestamp())
             ->withClaim('cid', '1')
-            ->withClaim('plugin', ['alias' => 'macros', 'id' => '1'])
+            ->withClaim('plugin', ['alias' => 'MACROS', 'id' => '2'])
             ->withClaim('LVPT', $lvt)
             ->getToken();
 
@@ -81,10 +76,10 @@ class RegistrationTest extends TestCase
         $this->assertEquals($this->token->getClaim('exp'), $token->getClaim('exp'));
 
         $this->assertEquals($this->token->getClaim('plugin')->alias, $token->getClaim('plugin')->alias);
-        $this->assertEquals($this->token->getClaim('plugin')->alias, $this->registration->getFeature());
+        $this->assertEquals($this->token->getClaim('plugin')->alias, Connector::getReference()->getAlias());
 
         $this->assertEquals($this->token->getClaim('plugin')->id, $token->getClaim('plugin')->id);
-        $this->assertEquals($this->token->getClaim('plugin')->id, $this->registration->getCompanyId());
+        $this->assertEquals($this->token->getClaim('plugin')->id, Connector::getReference()->getId());
 
         $this->assertEquals($this->token->getClaim('cid'), $token->getClaim('cid'));
 

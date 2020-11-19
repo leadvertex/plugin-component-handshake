@@ -9,13 +9,20 @@ namespace Leadvertex\Plugin\Components\Registration;
 
 
 use Lcobucci\JWT\Token;
-use Leadvertex\Plugin\Components\Db\Model;
+use Leadvertex\Plugin\Components\Db\ModelTrait;
+use Leadvertex\Plugin\Components\Db\SinglePluginModelInterface;
+use Leadvertex\Plugin\Components\Db\SinglePluginModelTrait;
 use Leadvertex\Plugin\Components\Guzzle\Guzzle;
 use Leadvertex\Plugin\Components\Registration\Exceptions\PluginRegistrationException;
 use League\Uri\UriString;
 
-class Registration extends Model
+class Registration implements SinglePluginModelInterface
 {
+
+    use ModelTrait, SinglePluginModelTrait;
+
+    protected int $registeredAt;
+    protected string $LVPT;
 
     /**
      * Registration constructor.
@@ -24,19 +31,18 @@ class Registration extends Model
      */
     public function __construct(Token $token)
     {
-        parent::__construct(
-            $token->getClaim('plugin')->id,
-            $token->getClaim('plugin')->alias
-        );
-
-        $this->setTag_1($token->getClaim('LVPT'));
+        $this->registeredAt = time();
         $this->register($token);
     }
 
+    public function getRegisteredAt(): int
+    {
+        return $this->registeredAt;
+    }
 
     public function getLVPT(): string
     {
-        return $this->getTag_1();
+        return $this->LVPT;
     }
 
     /**
@@ -90,16 +96,15 @@ class Registration extends Model
         if ($body['confirmed'] !== true) {
             throw new PluginRegistrationException("LV did not confirm your request", 6);
         }
+
+        $this->LVPT = $token->getClaim('LVPT');
     }
 
-    public static function findById(string $id, ?string $feature = null): ?self
+    public static function schema(): array
     {
-        return parent::findById($id, $feature);
+        return [
+            'registeredAt' => ['INT', 'NOT NULL'],
+            'LVPT' => ['CHAR(512)', 'NOT NULL'],
+        ];
     }
-
-    public static function findByIds(array $ids, ?string $feature = null): array
-    {
-        return parent::findByIds($ids, $feature);
-    }
-
 }
